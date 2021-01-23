@@ -50,6 +50,10 @@ The duration of the presentation is 15/20 minutes.
     - Possible improvement/extension
   - Bibliography (~1 page)
 
+### Get dataset
+
+```wget https://drive.google.com/uc?export=download&id=1objOji6SivxRxnFqv4U0_6KPrD3zjnMR```
+
 ### Research papers
 
 | Name of the article                                          | Authors                                                      | Link                                                   |

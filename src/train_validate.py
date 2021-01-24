@@ -5,7 +5,7 @@ import torch.optim as optim
 from tqdm import tqdm
 from torchvision.utils import save_image
 
-from network import DeblurCNN, get_model
+from model import DeblurCNN, get_model
 
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
@@ -20,17 +20,18 @@ def util(model):
 
 def fit(model, dataloader, train_data, epoch):
     """
-    Train the neural network
+    Train the model
 
     Args:
         model ([nn.Module]): [DeblurCNN model]
         dataloader ([torch.utils.data]): [Load training dataset]
-        epoch ([int]): [Number of epochs to train the neural network]
+        epoch ([int]): [Number of epochs to train the model]
 
     Returns:
         [float]: [Training loss]
     """
     criterion, optimizer = util(model)
+    
     model.train()
     running_loss = 0.0
     for i, data in tqdm(enumerate(dataloader), total=int(len(train_data)/dataloader.batch_size)):
@@ -53,17 +54,17 @@ def fit(model, dataloader, train_data, epoch):
     return train_loss
 
 def save_decoded_image(img, name):
-    img = img.view(img.size(0), 3, 224, 224)
+    img = img.view(img.size(0), 3, 256, 256)
     save_image(img, name)
 
 def validate(model, dataloader, val_data, epoch):
     """
-    Neural network validation
+    Neural model validation
 
     Args:
         model ([nn.Module]): [DeblurCNN model]
         dataloader ([torch.utils.data]): [Load validation dataset]
-        epoch ([int]): [Number of epochs to train the neural network]
+        epoch ([int]): [Number of epochs to train the neural model]
 
     Returns:
         [float]: [Validation loss]

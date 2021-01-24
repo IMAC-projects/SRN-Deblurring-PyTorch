@@ -10,7 +10,7 @@ import argparse
 from torchvision.transforms import transforms
 from sklearn.model_selection import train_test_split
 
-from network import get_model
+from model import get_model
 from get_dataset import DeblurDataset, get_train_dataset, get_validation_dataset
 from train_validate import util, fit, validate
 
@@ -53,11 +53,11 @@ def split_dataset():
 
 def transform_image():
     """
-    Transform the image : resize it to 224x224
+    Transform the image : resize it to 256x256
     """
     transform = transforms.Compose([
         transforms.ToPILImage(),
-        transforms.Resize((224, 224)),
+        transforms.Resize((256, 256)),
         transforms.ToTensor(),
     ])
     return transform
@@ -102,7 +102,7 @@ def training_validate(epochs,model,train_data, trainloader, val_data, valloader)
     # save the model to disk
     print('Saving model...')
     torch.save(model.state_dict(), '../outputs/model.pth')
-
+    
 def main():
     args = parse_args()
     (x_train, x_val, y_train, y_val) = split_dataset()

@@ -23,10 +23,12 @@ class DeblurDataset(Dataset):
         else:
             return blur_image
 
-def get_train_dataset():
+def get_train_dataset(x_train, y_train, transform, batch_size):
     train_data = DeblurDataset(x_train, y_train, transform)    
     trainloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
+    return train_data,trainloader
 
-def get_validation_dataset():
+def get_validation_dataset(x_val,y_val, transform, batch_size):
     val_data = DeblurDataset(x_val, y_val, transform)
     valloader = DataLoader(val_data, batch_size=batch_size, shuffle=False)
+    return val_data,valloader

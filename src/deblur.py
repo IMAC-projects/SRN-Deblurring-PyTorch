@@ -7,22 +7,16 @@ import torch
 import torchvision
 import time
 import argparse
-from tqdm import tqdm
 from torchvision.transforms import transforms
-from torchvision.utils import save_image
 from sklearn.model_selection import train_test_split
 
+from network import get_model
 from get_dataset import DeblurDataset, get_train_dataset, get_validation_dataset
+from train_validate import util, fit, validate
 
 # helper functions
 image_dir = '../outputs/saved_images'
 os.makedirs(image_dir, exist_ok=True)
-device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-print(device)
-
-def save_decoded_image(img, name):
-    img = img.view(img.size(0), 3, 224, 224)
-    save_image(img, name)
 
 # constructing the argument parser
 def parse_args():
@@ -30,7 +24,7 @@ def parse_args():
     Parse arguments
     """
     parser = argparse.ArgumentParser(description='deblur arguments')
-    parser.add_argument('-e','--epoch', help='training epoch number', type=int, default=40)
+    parser.add_argument('-e','--epochs', help='training epoch number', type=int, default=40)
     parser.add_argument('-b','--batch', help='training batch number', type=int, default=2)
     args = parser.parse_args()
     return args
@@ -67,12 +61,45 @@ def transform_image():
         transforms.ToTensor(),
     ])
     return transform
-    
+
+def get_scheduler(model):
+    criterion, optimizer = util(model)
+    # learning rate schedules seek to adjust the learning rate during training by reducing the learning rate according to a pre-defined schedule
+    # here, patience is 5 and factor is 0.5
+    # if the loss value does not improve for 5 epochs, the new learning rate will be old_learning_rate * 0.5.
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau( 
+            optimizer,
+            mode='min',
+            patience=5,
+            factor=0.5,
+            verbose=True
+    )
+    return scheduler
+
+def training_validate(epochs,model,train_data, trainloader, val_data, valloader):
+    train_loss  = []
+    val_loss = []
+    start = time.time()
+    scheduler = get_scheduler(model)
+    for epoch in range(epochs):
+        print(f"Epoch {epoch+1} of {epochs}")
+        train_epoch_loss = fit(model, trainloader, train_data, epoch)
+        val_epoch_loss = validate(model, valloader, val_data, epoch)
+        train_loss.append(train_epoch_loss)
+        val_loss.append(val_epoch_loss)
+        scheduler.step(val_epoch_loss)
+    end = time.time()
+    print(f"Took {((end-start)/60):.3f} minutes to train")
 
 def main():
     args = parse_args()
     (x_train, x_val, y_train, y_val) = split_dataset()
     transform = transform_image()
+    train_data, train_loader = get_train_dataset(x_train,y_train,transform,args.batch)
+    val_data, val_loader = get_validation_dataset(x_val,y_val,transform,args.batch)
+
+    training_validate(args.epochs, get_model(),train_data, train_loader, val_data, val_loader)
+
 
 if __name__ == '__main__':
     main()

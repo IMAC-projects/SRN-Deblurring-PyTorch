@@ -11,10 +11,11 @@ import torch.optim as optim
 import time
 import argparse
 from tqdm import tqdm
-from torch.utils.data import Dataset, DataLoader
 from torchvision.transforms import transforms
 from torchvision.utils import save_image
 from sklearn.model_selection import train_test_split
+
+from get_dataset import DeblurDataset, get_train_dataset, get_validation_dataset
 
 # helper functions
 image_dir = '../outputs/saved_images'

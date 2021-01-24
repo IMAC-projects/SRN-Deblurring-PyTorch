@@ -90,6 +90,18 @@ def training_validate(epochs,model,train_data, trainloader, val_data, valloader)
         scheduler.step(val_epoch_loss)
     end = time.time()
     print(f"Took {((end-start)/60):.3f} minutes to train")
+    # loss plots
+    plt.figure(figsize=(10, 7))
+    plt.plot(train_loss, color='orange', label='train loss')
+    plt.plot(val_loss, color='red', label='validataion loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.savefig('../outputs/loss.png')
+    plt.show()
+    # save the model to disk
+    print('Saving model...')
+    torch.save(model.state_dict(), '../outputs/model.pth')
 
 def main():
     args = parse_args()

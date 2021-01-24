@@ -5,9 +5,6 @@ import glob
 import cv2
 import torch
 import torchvision
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
 import time
 import argparse
 from tqdm import tqdm
@@ -16,6 +13,7 @@ from torchvision.utils import save_image
 from sklearn.model_selection import train_test_split
 
 from get_dataset import DeblurDataset, get_train_dataset, get_validation_dataset
+from network import DeblurCNN, get_model
 
 # helper functions
 image_dir = '../outputs/saved_images'
@@ -71,6 +69,7 @@ def main():
     args = parse_args()
     (x_train, x_val, y_train, y_val) = split_dataset()
     transform = transform_image()
+    get_model(device)
 
 if __name__ == '__main__':
     main()

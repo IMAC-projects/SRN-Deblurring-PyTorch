@@ -2,9 +2,14 @@ import torch
 import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
 
 class DeblurCNN(nn.Module):
+    """
+    Convolutional neural network for deblur
+
+    Args:
+        nn.Module([torch.nn.Module]): [Base class for all neural network modules]
+    """
     def __init__(self):
         super(DeblurCNN, self).__init__()
         self.conv1 = nn.Conv2d(3, 64, kernel_size=9, padding=2)
@@ -17,5 +22,11 @@ class DeblurCNN(nn.Module):
         return x
 
 def get_model(device):
+    """
+    Get neural network model
+
+    Args:
+        device ([str]): [String to launch the network to your CPU or GPU]
+    """
     model = DeblurCNN().to(device)
     print(model)

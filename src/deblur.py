@@ -13,7 +13,6 @@ from torchvision.utils import save_image
 from sklearn.model_selection import train_test_split
 
 from get_dataset import DeblurDataset, get_train_dataset, get_validation_dataset
-from network import DeblurCNN, get_model
 
 # helper functions
 image_dir = '../outputs/saved_images'
@@ -27,6 +26,9 @@ def save_decoded_image(img, name):
 
 # constructing the argument parser
 def parse_args():
+    """
+    Parse arguments
+    """
     parser = argparse.ArgumentParser(description='deblur arguments')
     parser.add_argument('-e','--epoch', help='training epoch number', type=int, default=40)
     parser.add_argument('-b','--batch', help='training batch number', type=int, default=2)
@@ -56,7 +58,9 @@ def split_dataset():
     return (x_train, x_val, y_train, y_val)
 
 def transform_image():
-    # define transforms
+    """
+    Transform the image : resize it to 224x224
+    """
     transform = transforms.Compose([
         transforms.ToPILImage(),
         transforms.Resize((224, 224)),
@@ -69,7 +73,6 @@ def main():
     args = parse_args()
     (x_train, x_val, y_train, y_val) = split_dataset()
     transform = transform_image()
-    get_model(device)
 
 if __name__ == '__main__':
     main()

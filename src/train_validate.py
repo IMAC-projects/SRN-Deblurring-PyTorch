@@ -54,7 +54,7 @@ def fit(model, dataloader, train_data, epoch):
     return train_loss
 
 def save_decoded_image(img, name):
-    img = img.view(img.size(0), 3, 256, 256)
+    img = img.view(img.size(0), 3, 1024, 1024)
     save_image(img, name)
 
 def validate(model, dataloader, val_data, epoch):
@@ -81,11 +81,10 @@ def validate(model, dataloader, val_data, epoch):
             outputs = model(blur_image)
             loss = criterion(outputs, sharp_image)
             running_loss += loss.item()
-            if epoch == 0 and i == int((len(val_data)/dataloader.batch_size)-1):
-                save_decoded_image(sharp_image.cpu().data, name=f"../outputs/saved_images/sharp{epoch}.jpg")
-                save_decoded_image(blur_image.cpu().data, name=f"../outputs/saved_images/blur{epoch}.jpg")
-            if i == int((len(val_data)/dataloader.batch_size)-1):
-                save_decoded_image(outputs.cpu().data, name=f"../outputs/saved_images/val_deblurred{epoch}.jpg")
+            save_decoded_image(sharp_image.cpu().data, name=f"../outputs/saved_images/sharp{epoch}.jpg")
+            save_decoded_image(blur_image.cpu().data, name=f"../outputs/saved_images/blur{epoch}.jpg")
+            #if i == int((len(val_data)/dataloader.batch_size)-1):
+            save_decoded_image(outputs.cpu().data, name=f"../outputs/saved_images/val_deblurred{epoch}.jpg")
         val_loss = running_loss/len(dataloader.dataset)
         print(f"Val Loss: {val_loss:.5f}")
         

@@ -7,6 +7,8 @@ import torch
 import torchvision
 import time
 import argparse
+from os import scandir
+from os.path import isdir, join
 from torchvision.transforms import transforms
 from sklearn.model_selection import train_test_split
 
@@ -18,14 +20,31 @@ from train_validate import util, fit, validate
 image_dir = '../outputs/saved_images'
 os.makedirs(image_dir, exist_ok=True)
 
+
+def fast_scandir(dirname):
+    subfolders= [f.path for f in os.scandir(dirname) if f.is_dir()]
+    for dirname in list(subfolders):
+        subfolders.extend(fast_scandir(dirname))
+    return subfolders
+
+blur_path = []
+sharp_path = []
+dirname = fast_scandir("../dataset/GOPRO_Large/train")
+sub = 'blur'
+sub2 = 'sharp'
+for blur in filter(lambda x: sub in x, dirname): 
+    blur_path.append(blur)
+for sharp in filter(lambda x: sub2 in x, dirname):
+    sharp_path.append(sharp)
+
 # constructing the argument parser
 def parse_args():
     """
     Parse arguments
     """
     parser = argparse.ArgumentParser(description='deblur arguments')
-    parser.add_argument('-e','--epochs', help='training epoch number', type=int, default=40)
-    parser.add_argument('-b','--batch', help='training batch number', type=int, default=2)
+    parser.add_argument('-e','--epochs', help='training epoch number', type=int, default=1000)
+    parser.add_argument('-b','--batch', help='training batch number', type=int, default=5)
     args = parser.parse_args()
     return args
 
@@ -35,18 +54,19 @@ def split_dataset():
     75% for training
     25% for validation
     """
-    gauss_blur = os.listdir('../dataset/gaussian_blurred')
-    gauss_blur.sort()
-    sharp = os.listdir('../dataset/sharp')
-    sharp.sort()
-    x_blur = []
-    for i in range(len(gauss_blur)):
-        x_blur.append(gauss_blur[i])
-    y_sharp = []
-    for i in range(len(sharp)):
-        y_sharp.append(sharp[i])
+    gauss_blur = []
+    sharp = []
 
-    (x_train, x_val, y_train, y_val) = train_test_split(x_blur, y_sharp, test_size=0.25)
+    for i in range(len(blur_path)):
+        _, _, filenames = next(os.walk(blur_path[i]))
+        gauss_blur.append(blur_path[i] + "/" + filenames[i])
+
+    for i in range(len(sharp_path)):
+        _, _, filenames = next(os.walk(sharp_path[i]))
+        sharp.append(sharp_path[i] + "/" + filenames[i])    
+    sharp.sort()
+
+    (x_train, x_val, y_train, y_val) = train_test_split(gauss_blur, sharp, test_size=0.25)
     print(f"Train data instances: {len(x_train)}")
     print(f"Validation data instances: {len(x_val)}")
     return (x_train, x_val, y_train, y_val)

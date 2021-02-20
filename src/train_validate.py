@@ -15,7 +15,11 @@ def util(model):
         {'params': model.conv1.parameters()},
         {'params': model.conv2.parameters()},
         {'params': model.conv3.parameters()}], lr=0.001)
-
+    '''
+    optimizer = optim.Adam([
+        {'params': model.encoder.parameters()},
+        {'params': model.decoder.parameters()}], lr=0.001)
+    '''
     return criterion, optimizer
 
 def fit(model, dataloader, train_data, epoch):
@@ -54,18 +58,16 @@ def fit(model, dataloader, train_data, epoch):
     return train_loss
 
 def save_decoded_image(img, name):
-    img = img.view(img.size(0), 3, 256, 256)
+    img = img.view(img.size(0), 3, 1024, 1024)
     save_image(img, name)
 
 def validate(model, dataloader, val_data, epoch):
     """
     Neural model validation
-
     Args:
         model ([nn.Module]): [DeblurCNN model]
         dataloader ([torch.utils.data]): [Load validation dataset]
         epoch ([int]): [Number of epochs to train the neural model]
-
     Returns:
         [float]: [Validation loss]
     """
@@ -81,12 +83,10 @@ def validate(model, dataloader, val_data, epoch):
             outputs = model(blur_image)
             loss = criterion(outputs, sharp_image)
             running_loss += loss.item()
-            if epoch == 0 and i == int((len(val_data)/dataloader.batch_size)-1):
-                save_decoded_image(sharp_image.cpu().data, name=f"../outputs/saved_images/sharp{epoch}.jpg")
-                save_decoded_image(blur_image.cpu().data, name=f"../outputs/saved_images/blur{epoch}.jpg")
-            if i == int((len(val_data)/dataloader.batch_size)-1):
-                save_decoded_image(outputs.cpu().data, name=f"../outputs/saved_images/val_deblurred{epoch}.jpg")
+            
         val_loss = running_loss/len(dataloader.dataset)
         print(f"Val Loss: {val_loss:.5f}")
+
+        save_decoded_image(outputs.cpu().data, name=f"../outputs/saved_images/val_deblurred{epoch}.jpg")
         
         return val_loss

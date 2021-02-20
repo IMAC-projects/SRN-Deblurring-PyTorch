@@ -32,10 +32,13 @@ sharp_path = []
 dirname = fast_scandir("../dataset/GOPRO_Large/train")
 sub = 'blur'
 sub2 = 'sharp'
+
 for blur in filter(lambda x: sub in x, dirname): 
     blur_path.append(blur)
+
 for sharp in filter(lambda x: sub2 in x, dirname):
     sharp_path.append(sharp)
+
 
 # constructing the argument parser
 def parse_args():
@@ -43,7 +46,7 @@ def parse_args():
     Parse arguments
     """
     parser = argparse.ArgumentParser(description='deblur arguments')
-    parser.add_argument('-e','--epochs', help='training epoch number', type=int, default=1000)
+    parser.add_argument('-e','--epochs', help='training epoch number', type=int, default=100)
     parser.add_argument('-b','--batch', help='training batch number', type=int, default=1)
     args = parser.parse_args()
     return args
@@ -57,15 +60,18 @@ def split_dataset():
     gauss_blur = []
     sharp = []
 
-    for i in range(len(blur_path)):
-        _, _, filenames = next(os.walk(blur_path[i]))
-        gauss_blur.append(blur_path[i] + "/" + filenames[i])
-
-    for i in range(len(sharp_path)):
-        _, _, filenames = next(os.walk(sharp_path[i]))
-        sharp.append(sharp_path[i] + "/" + filenames[i])    
+    for i,idx in enumerate(blur_path):
+        _, _, filenames = next(os.walk(idx))
+        for j in range(len(filenames)):
+            gauss_blur.append(idx + "/" + filenames[j])
+    
+    for i,idx in enumerate(sharp_path):
+        _, _, filenames = next(os.walk(idx))
+        for j in range(len(filenames)):
+            sharp.append(idx + "/" + filenames[j])    
 
     (x_train, x_val, y_train, y_val) = train_test_split(gauss_blur, sharp, test_size=0.25)
+
     print(f"Train data instances: {len(x_train)}")
     print(f"Validation data instances: {len(x_val)}")
     return (x_train, x_val, y_train, y_val)

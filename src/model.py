@@ -7,6 +7,26 @@ import torch.nn.functional as F
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 print(device)
 
+
+class SimpleAE(nn.Module):
+    def __init__(self):
+        super(SimpleAE, self).__init__()
+
+        self.encoder = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=5),
+            nn.ReLU(True),
+            nn.Conv2d(32, 64, kernel_size=5),
+            nn.ReLU(True))
+        self.decoder = nn.Sequential(             
+            nn.ConvTranspose2d(64, 32, kernel_size=5),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(32, 3, kernel_size=5),
+            nn.ReLU(True))
+    def forward(self,x):
+        x = self.encoder(x)
+        x = self.decoder(x)
+        return x
+
 class DeblurCNN(nn.Module):
     """
     Convolutional neural network for deblur
